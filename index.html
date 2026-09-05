@@ -287,8 +287,9 @@
     }
 
     function updateGrandTotal() {
+    //  <!-- Commission Formula  Next Line (eloadVal * 0.00) -->
       const eloadVal = parseFloat(eLoadAmount.value) || 0;
-      const eloadTot = eloadVal + (eloadVal * 0.03);
+      const eloadTot = eloadVal + (eloadVal * 0.00);
 
       const simQ = parseFloat(simQty.value) || 0;
       const simP = parseFloat(simPrice.value) || 0;
