@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABC Franchise</title>
+  <!-- Bootstrap 5 CSS CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- html2pdf Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    body { background-color: #f8f9fa; color: #333; }
+    header { background-color: #4A90E2; color: white; padding: 15px 0; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .date-bar { background-color: #ffffff; padding: 12px; text-align: center; border-bottom: 1px solid #e0e0e0; }
+    .row-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .title-label { width: 140px; flex-shrink: 0; font-weight: bold; color: #0d6efd; }
+    .input-field { flex-grow: 1; }
+
+    @media print {
+      body { background-color: #fff !important; }
+      header, .date-bar, .no-print, .modal-backdrop, .modal { display: none !important; }
+      .container { max-width: 100% !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
+      .card { border: 1px solid #ccc !important; box-shadow: none !important; margin-bottom: 15px !important; }
+      input { border: none !important; background: transparent !important; font-weight: bold; }
+      .input-group-text { border: none !important; background: transparent !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="no-print">
+    <h1 class="h3 m-0">ABC Franchise</h1>
+  </header>
+
+  <!-- Select Date Section -->
+  <div class="date-bar mb-3 no-print">
+    <div class="d-flex justify-content-center align-items-center gap-2">
+      <label for="select-date" class="fw-bold text-secondary">Select Date:</label>
+      <input type="date" id="select-date" class="form-control form-control-sm w-auto">
+    </div>
+  </div>
+
+  <!-- Printable Main Content Area -->
+  <div id="pdf-content" class="container p-3" style="max-width: 600px;">
+    
+    <div class="text-center border-bottom pb-2 mb-3">
+      <h3 class="fw-bold text-dark m-0">ABC Franchise Daily Report</h3>
+      <small class="text-muted fw-bold">Date: <span id="report-date-text"></span></small>
+    </div>
+
+    <!-- Div 1: Purchase Stock -->
+    <div class="card shadow-sm p-3 mb-4">
+      <h2 class="text-success fw-bolder text-center h4 mb-3 pb-2 border-bottom">Purchase Stock</h2>
+
+      <div class="mb-3">
+        <div class="row-item mb-2">
+          <span class="title-label" style="width: 70px;">E Load</span>
+          <div class="input-group input-group-sm input-field">
+            <span class="input-group-text">Rs.</span>
+            <input type="number" id="e-load-amount" class="form-control" placeholder="Load Amount">
+          </div>
+          <span class="badge bg-secondary px-2 py-2 text-nowrap no-print">Com 3%</span>
+        </div>
+        <div class="p-2 bg-light border rounded fw-bold text-success text-center">
+          Total Amount: Rs. <span id="e-load-total">0</span>
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="mb-3">
+        <div class="row-item mb-2">
+          <span class="title-label" style="width: 70px;">SIMs</span>
+          <input type="number" id="sim-qty" class="form-control form-control-sm input-field" placeholder="Qty">
+          <div class="input-group input-group-sm input-field">
+            <span class="input-group-text">Rs.</span>
+            <input type="number" id="sim-price" class="form-control" placeholder="Price">
+          </div>
+        </div>
+        <div class="p-2 bg-light border rounded fw-bold text-success text-center">
+          Total Amount: Rs. <span id="sim-total">0</span>
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="mb-3">
+        <div class="row-item mb-2">
+          <span class="title-label" style="width: 70px;">HRL</span>
+          <input type="number" id="hrl-qty" class="form-control form-control-sm input-field" placeholder="Qty">
+          <div class="input-group input-group-sm input-field">
+            <span class="input-group-text">Rs.</span>
+            <input type="number" id="hrl-price" class="form-control" placeholder="Price">
+          </div>
+        </div>
+        <div class="p-2 bg-light border rounded fw-bold text-success text-center">
+          Total Amount: Rs. <span id="hrl-total">0</span>
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="p-2 bg-dark text-white rounded text-center small fw-bold">
+        ELoad: <span id="summary-eload">0</span> | 
+        Sims: <span id="summary-sims">0</span> | 
+        HRL: <span id="summary-hrl">0</span> | 
+        <span class="text-warning">G Total: Rs. <span id="summary-gtotal">0</span></span>
+      </div>
+    </div>
+
+    <!-- Div 2: Pay to Franchise -->
+    <div class="card shadow-sm p-3 mb-4">
+      <h2 class="text-primary fw-bolder text-center h4 mb-3 pb-2 border-bottom">Pay to Franchise</h2>
+      
+      <div class="mb-3">
+        <div class="row-item">
+          <span class="title-label">E Load Payment</span>
+          <div class="input-group input-group-sm input-field">
+            <span class="input-group-text">Rs.</span>
+            <input type="number" id="e-load-payment" class="form-control" placeholder="Enter Payment Received">
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="mb-3">
+        <div class="row-item">
+          <span class="title-label">SIMs Payment</span>
+          <div class="input-group input-group-sm input-field">
+            <span class="input-group-text">Rs.</span>
+            <input type="number" id="sims-payment" class="form-control" placeholder="Enter Payment Received">
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <div class="mb-3">
+        <div class="row-item">
+          <span class="title-label">HRL Payment</span>
+          <div class="input-group input-group-sm input-field">
+            <span class="input-group-text">Rs.</span>
+            <input type="number" id="hrl-payment" class="form-control" placeholder="Enter Payment Received">
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-3">
+
+      <!-- Pay Summary Bar (G Total | Paid | Pending) -->
+      <div class="p-2 bg-primary text-white rounded text-center small fw-bold mb-3">
+        G Total: <span id="pay-stock-gtotal">0</span> | 
+        Paid: <span id="pay-gtotal">0</span> | 
+        <span class="text-warning">Pending: Rs. <span id="pay-pending">0</span></span>
+      </div>
+
+      <!-- Save Record Button -->
+      <button id="save-db-btn" class="btn btn-success w-100 fw-bold py-2 shadow-sm no-print">
+        <i class="bi bi-hdd-fill me-1"></i> Save Record
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Action Buttons Row -->
+  <div class="container mb-5 no-print" style="max-width: 600px;">
+    <!-- First Row: Share, Print, Download -->
+    <div class="d-flex flex-wrap gap-2 mb-2">
+      <button id="whatsapp-btn" class="btn btn-success flex-fill fw-bold py-2">
+        <i class="bi bi-whatsapp me-1"></i> Share on WhatsApp
+      </button>
+      <button id="print-btn" class="btn btn-dark flex-fill fw-bold py-2">
+        <i class="bi bi-printer me-1"></i> Print Record
+      </button>
+      <button id="download-btn" class="btn btn-danger flex-fill fw-bold py-2">
+        <i class="bi bi-file-earmark-pdf me-1"></i> Download PDF
+      </button>
+    </div>
+
+    <!-- Second Row: View Reports -->
+    <button class="btn btn-primary w-100 fw-bold py-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#reportModal">
+      <i class="bi bi-bar-chart-line-fill me-1"></i> View Reports
+    </button>
+  </div>
+
+  <!-- Report Modal -->
+  <div class="modal fade no-print" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="reportModalLabel"><i class="bi bi-file-text me-2"></i>Franchise Reports (IndexedDB)</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          
+          <div class="row g-2 mb-3 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label fw-bold small text-secondary">From Date:</label>
+              <input type="date" id="filter-from" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label fw-bold small text-secondary">To Date:</label>
+              <input type="date" id="filter-to" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-2">
+              <button id="filter-btn" class="btn btn-primary btn-sm w-100 fw-bold"><i class="bi bi-search"></i> Search</button>
+            </div>
+          </div>
+
+          <div id="report-view-content" class="p-2 border rounded bg-white">
+            <div class="text-center text-muted py-4">Select date range and click Search to load records from IndexedDB.</div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button id="share-report-wa" class="btn btn-success btn-sm fw-bold"><i class="bi bi-whatsapp"></i> Share Report</button>
+          <button id="print-report-btn" class="btn btn-dark btn-sm fw-bold"><i class="bi bi-printer"></i> Print Report</button>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // --- IndexedDB Database Initialization ---
+    let db = null;
+    const dbRequest = indexedDB.open("FranchiseDB", 1);
+
+    dbRequest.onupgradeneeded = (event) => {
+      db = event.target.result;
+      if (!db.objectStoreNames.contains("daily_records")) {
+        db.createObjectStore("daily_records", { keyPath: "date" });
+      }
+    };
+
+    dbRequest.onsuccess = (event) => {
+      db = event.target.result;
+      loadRecordForDate(dateInput.value);
+    };
+
+    dbRequest.onerror = (event) => {
+      console.error("IndexedDB Error:", event.target.error);
+    };
+
+    // --- Core Elements & UI Logic ---
+    const dateInput = document.getElementById('select-date');
+    const reportDateText = document.getElementById('report-date-text');
+    
+    dateInput.value = new Date().toISOString().split('T')[0];
+    document.getElementById('filter-from').value = dateInput.value;
+    document.getElementById('filter-to').value = dateInput.value;
+    reportDateText.textContent = dateInput.value;
+
+    const eLoadAmount = document.getElementById('e-load-amount');
+    const eLoadTotal = document.getElementById('e-load-total');
+    const simQty = document.getElementById('sim-qty');
+    const simPrice = document.getElementById('sim-price');
+    const simTotal = document.getElementById('sim-total');
+    const hrlQty = document.getElementById('hrl-qty');
+    const hrlPrice = document.getElementById('hrl-price');
+    const hrlTotal = document.getElementById('hrl-total');
+
+    const summaryEload = document.getElementById('summary-eload');
+    const summarySims = document.getElementById('summary-sims');
+    const summaryHrl = document.getElementById('summary-hrl');
+    const summaryGtotal = document.getElementById('summary-gtotal');
+
+    const eLoadPayment = document.getElementById('e-load-payment');
+    const simsPayment = document.getElementById('sims-payment');
+    const hrlPayment = document.getElementById('hrl-payment');
+    const payGtotal = document.getElementById('pay-gtotal');
+    const payStockGtotal = document.getElementById('pay-stock-gtotal');
+    const payPending = document.getElementById('pay-pending');
+
+    let globalStockGTotal = 0;
+
+    function formatNumber(num) {
+      if (Math.abs(num) >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+      return num.toLocaleString('en-US');
+    }
+
+    function updateGrandTotal() {
+      const eloadVal = parseFloat(eLoadAmount.value) || 0;
+      const eloadTot = eloadVal + (eloadVal * 0.03);
+
+      const simQ = parseFloat(simQty.value) || 0;
+      const simP = parseFloat(simPrice.value) || 0;
+      const simTot = simQ * simP;
+
+      const hrlQ = parseFloat(hrlQty.value) || 0;
+      const hrlP = parseFloat(hrlPrice.value) || 0;
+      const hrlTot = hrlQ * hrlP;
+
+      globalStockGTotal = eloadTot + simTot + hrlTot;
+
+      eLoadTotal.textContent = eloadTot.toLocaleString('en-US');
+      simTotal.textContent = simTot.toLocaleString('en-US');
+      hrlTotal.textContent = hrlTot.toLocaleString('en-US');
+
+      summaryEload.textContent = formatNumber(eloadTot);
+      summarySims.textContent = formatNumber(simTot);
+      summaryHrl.textContent = formatNumber(hrlTot);
+      summaryGtotal.textContent = globalStockGTotal.toLocaleString('en-US');
+
+      updatePayTotal();
+    }
+
+    function updatePayTotal() {
+      const eloadPay = parseFloat(eLoadPayment.value) || 0;
+      const simsPay = parseFloat(simsPayment.value) || 0;
+      const hrlPay = parseFloat(hrlPayment.value) || 0;
+
+      const totalPaid = eloadPay + simsPay + hrlPay;
+      const pendingVal = globalStockGTotal - totalPaid;
+
+      payStockGtotal.textContent = formatNumber(globalStockGTotal);
+      payGtotal.textContent = formatNumber(totalPaid);
+      payPending.textContent = pendingVal.toLocaleString('en-US');
+    }
+
+    // Save Data to IndexedDB Function
+    function saveRecordToIndexedDB(showAlert = false) {
+      if (!db) return;
+
+      const record = {
+        date: dateInput.value,
+        eLoadAmount: eLoadAmount.value || 0,
+        eLoadTotal: eLoadTotal.textContent,
+        simQty: simQty.value || 0,
+        simPrice: simPrice.value || 0,
+        simTotal: simTotal.textContent,
+        hrlQty: hrlQty.value || 0,
+        hrlPrice: hrlPrice.value || 0,
+        hrlTotal: hrlTotal.textContent,
+        stockGTotal: summaryGtotal.textContent,
+        eLoadPayment: eLoadPayment.value || 0,
+        simsPayment: simsPayment.value || 0,
+        hrlPayment: hrlPayment.value || 0,
+        payGTotal: payGtotal.textContent,
+        payPending: payPending.textContent
+      };
+
+      const transaction = db.transaction(["daily_records"], "readwrite");
+      const store = transaction.objectStore("daily_records");
+      const request = store.put(record);
+
+      request.onsuccess = () => {
+        if (showAlert) alert("Record successfully saved to IndexedDB!");
+      };
+      request.onerror = (e) => {
+        console.error("Save Error:", e.target.error);
+      };
+    }
+
+    // Load Record from IndexedDB Function
+    function loadRecordForDate(dateVal) {
+      if (!db) return;
+
+      const transaction = db.transaction(["daily_records"], "readonly");
+      const store = transaction.objectStore("daily_records");
+      const request = store.get(dateVal);
+
+      request.onsuccess = () => {
+        const rec = request.result;
+        if (rec) {
+          eLoadAmount.value = rec.eLoadAmount || '';
+          simQty.value = rec.simQty || '';
+          simPrice.value = rec.simPrice || 100;
+          hrlQty.value = rec.hrlQty || '';
+          hrlPrice.value = rec.hrlPrice || 100;
+          eLoadPayment.value = rec.eLoadPayment || '';
+          simsPayment.value = rec.simsPayment || '';
+          hrlPayment.value = rec.hrlPayment || '';
+        } else {
+          eLoadAmount.value = '';
+          simQty.value = '';
+          hrlQty.value = '';
+          eLoadPayment.value = '';
+          simsPayment.value = '';
+          hrlPayment.value = '';
+        }
+        updateGrandTotal();
+      };
+    }
+
+    simPrice.value = localStorage.getItem('saved_sim_price') || 100;
+    hrlPrice.value = localStorage.getItem('saved_hrl_price') || 100;
+
+    dateInput.addEventListener('change', () => {
+      reportDateText.textContent = dateInput.value;
+      loadRecordForDate(dateInput.value);
+    });
+
+    [eLoadAmount, simQty, hrlQty, eLoadPayment, simsPayment, hrlPayment].forEach(el => {
+      el.addEventListener('input', () => {
+        updateGrandTotal();
+      });
+    });
+
+    simPrice.addEventListener('input', () => {
+      localStorage.setItem('saved_sim_price', simPrice.value);
+      updateGrandTotal();
+    });
+
+    hrlPrice.addEventListener('input', () => {
+      localStorage.setItem('saved_hrl_price', hrlPrice.value);
+      updateGrandTotal();
+    });
+
+    // Save Record Button Click Event
+    document.getElementById('save-db-btn').addEventListener('click', () => {
+      saveRecordToIndexedDB(true);
+    });
+
+    // WhatsApp Action
+    document.getElementById('whatsapp-btn').addEventListener('click', () => {
+      saveRecordToIndexedDB(false);
+      const text = `*ABC Franchise Daily Report*\n` +
+        `📅 *Date:* ${dateInput.value}\n\n` +
+        `📦 *Purchase Stock*\n` +
+        `• ELoad: Rs. ${eLoadTotal.textContent}\n` +
+        `• SIMs: Rs. ${simTotal.textContent} (${simQty.value || 0} x ${simPrice.value})\n` +
+        `• HRL: Rs. ${hrlTotal.textContent} (${hrlQty.value || 0} x ${hrlPrice.value})\n` +
+        `👉 *Stock G Total:* Rs. ${summaryGtotal.textContent}\n\n` +
+        `💳 *Pay To Franchise*\n` +
+        `• E Load Pay: Rs. ${eLoadPayment.value || 0}\n` +
+        `• SIMs Pay: Rs. ${simsPayment.value || 0}\n` +
+        `• HRL Pay: Rs. ${hrlPayment.value || 0}\n` +
+        `👉 *Total Paid:* Rs. ${payGtotal.textContent}\n` +
+        `👉 *Pending Amount:* Rs. ${payPending.textContent}`;
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    });
+
+    // Print Action
+    document.getElementById('print-btn').addEventListener('click', () => {
+      saveRecordToIndexedDB(false);
+      window.print();
+    });
+
+    // Download PDF Action
+    document.getElementById('download-btn').addEventListener('click', () => {
+      saveRecordToIndexedDB(false);
+      const element = document.getElementById('pdf-content');
+      const opt = {
+        margin:       0.5,
+        filename:     `Franchise_Report_${dateInput.value}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    });
+
+    // Filter Records from IndexedDB
+    let activeReportText = "";
+
+    document.getElementById('filter-btn').addEventListener('click', () => {
+      const from = document.getElementById('filter-from').value;
+      const to = document.getElementById('filter-to').value;
+      const container = document.getElementById('report-view-content');
+
+      if (!db) return;
+
+      const transaction = db.transaction(["daily_records"], "readonly");
+      const store = transaction.objectStore("daily_records");
+      const request = store.getAll();
+
+      request.onsuccess = () => {
+        const allRecords = request.result || [];
+        const filtered = allRecords.filter(r => r.date >= from && r.date <= to).sort((a,b) => a.date.localeCompare(b.date));
+
+        if (filtered.length === 0) {
+          container.innerHTML = `<div class="text-center text-danger py-3 fw-bold">No records found between ${from} and ${to}.</div>`;
+          activeReportText = "";
+          return;
+        }
+
+        let totalStockVal = 0, totalPayVal = 0, totalPendingVal = 0;
+        let html = `<div class="text-center fw-bold border-bottom pb-2 mb-2">Report: ${from} to ${to}</div>`;
+        html += `<table class="table table-sm table-bordered text-center small align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Stock Total</th>
+              <th>Paid</th>
+              <th>Pending</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+        activeReportText = `*ABC Franchise Summary Report*\n📅 Range: ${from} to ${to}\n\n`;
+
+        filtered.forEach(r => {
+          const sTot = parseFloat((r.stockGTotal || "0").replace(/,/g, '')) || 0;
+          const pTot = parseFloat((r.payGTotal || "0").replace(/,/g, '')) || 0;
+          const pendTot = parseFloat((r.payPending || "0").replace(/,/g, '')) || 0;
+
+          totalStockVal += sTot;
+          totalPayVal += pTot;
+          totalPendingVal += pendTot;
+
+          html += `<tr>
+            <td>${r.date}</td>
+            <td>Rs. ${r.stockGTotal}</td>
+            <td>Rs. ${r.payGTotal}</td>
+            <td>Rs. ${r.payPending || 0}</td>
+          </tr>`;
+
+          activeReportText += `• ${r.date}: Stock Rs. ${r.stockGTotal} | Paid Rs. ${r.payGTotal} | Pending Rs. ${r.payPending || 0}\n`;
+        });
+
+        html += `</tbody>
+          <tfoot class="table-dark fw-bold">
+            <tr>
+              <td>Total</td>
+              <td>Rs. ${totalStockVal.toLocaleString('en-US')}</td>
+              <td>Rs. ${totalPayVal.toLocaleString('en-US')}</td>
+              <td>Rs. ${totalPendingVal.toLocaleString('en-US')}</td>
+            </tr>
+          </tfoot>
+        </table>`;
+
+        activeReportText += `\n*Grand Total Stock:* Rs. ${totalStockVal.toLocaleString('en-US')}\n*Grand Total Paid:* Rs. ${totalPayVal.toLocaleString('en-US')}\n*Total Pending:* Rs. ${totalPendingVal.toLocaleString('en-US')}`;
+
+        container.innerHTML = html;
+      };
+    });
+
+    // Share & Print Reports
+    document.getElementById('share-report-wa').addEventListener('click', () => {
+      if(!activeReportText) return alert("Please search records first!");
+      window.open(`https://wa.me/?text=${encodeURIComponent(activeReportText)}`, '_blank');
+    });
+
+    document.getElementById('print-report-btn').addEventListener('click', () => {
+      const content = document.getElementById('report-view-content').innerHTML;
+      const win = window.open('', '', 'height=600,width=800');
+      win.document.write(`<html><head><title>Print Report</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"></head><body class="p-4">${content}</body></html>`);
+      win.document.close();
+      win.print();
+    });
+  </script>
+</body>
+</html>
